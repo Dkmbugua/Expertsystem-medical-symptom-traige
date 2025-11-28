@@ -1,0 +1,304 @@
+;; Medical Triage Rules - Comprehensive Coverage
+
+;; CRITICAL / RED - Immediate Emergency
+(defrule chest-pain-cardiac-risk
+  "Chest pain in adults - possible cardiac event"
+  (declare (salience 100))
+  (patient-demographics (age ?age&:(>= ?age 35)))
+  (patient-symptom (name chest-pain))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Chest pain with cardiac risk. Immediate medical attention required - call ambulance now!")
+  ))
+)
+
+(defrule unconscious-emergency
+  "Patient is unconscious"
+  (declare (salience 100))
+  (patient-symptom (name unconscious))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Patient unconscious. Critical emergency - call ambulance immediately!")
+  ))
+)
+
+(defrule severe-bleeding
+  "Severe bleeding requires immediate care"
+  (declare (salience 100))
+  (patient-symptom (name severe-bleeding))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Severe bleeding detected. Emergency care needed - call ambulance now!")
+  ))
+)
+
+(defrule difficulty-breathing-severe
+  "Severe breathing difficulty"
+  (declare (salience 95))
+  (patient-symptom (name difficulty-breathing))
+  (patient-demographics (age ?age))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Severe difficulty breathing. Requires immediate emergency care!")
+  ))
+)
+
+(defrule severe-burn
+  "Severe burn injury"
+  (declare (salience 90))
+  (patient-symptom (name severe-burn))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Severe burn injury. Immediate hospital treatment required!")
+  ))
+)
+
+(defrule seizure-emergency
+  "Active seizure"
+  (declare (salience 90))
+  (patient-symptom (name seizure))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Seizure activity. Emergency medical attention needed immediately!")
+  ))
+)
+
+(defrule fracture-severe
+  "Fracture with complications"
+  (declare (salience 85))
+  (patient-symptom (name fracture))
+  (patient-symptom (name severe-bleeding|severe-pain))
+  =>
+  (assert (triage-result
+    (level RED)
+    (score 1)
+    (transport ambulance)
+    (rationale "Severe fracture with complications. Emergency care required!")
+  ))
+)
+
+;; URGENT / YELLOW - Needs Hospital Soon
+(defrule high-fever-with-symptoms
+  "High fever with other symptoms"
+  (declare (salience 70))
+  (patient-symptom (name fever))
+  (or
+    (patient-symptom (name vomiting))
+    (patient-symptom (name dizziness))
+    (patient-symptom (name weakness))
+  )
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 3)
+    (transport matatu)
+    (rationale "High fever with concerning symptoms. Visit hospital today using matatu, taxi or uber.")
+  ))
+)
+
+(defrule vomiting-persistent
+  "Persistent vomiting - dehydration risk"
+  (declare (salience 65))
+  (patient-symptom (name vomiting))
+  (patient-symptom (name weakness|dizziness))
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 3)
+    (transport matatu)
+    (rationale "Persistent vomiting with dehydration signs. Seek medical care today.")
+  ))
+)
+
+(defrule abdominal-pain-severe
+  "Severe abdominal pain"
+  (declare (salience 65))
+  (patient-symptom (name abdominal-pain))
+  (or
+    (patient-symptom (name vomiting))
+    (patient-symptom (name fever))
+  )
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 3)
+    (transport matatu)
+    (rationale "Severe abdominal pain. Medical evaluation needed today.")
+  ))
+)
+
+(defrule headache-severe-with-symptoms
+  "Severe headache with warning signs"
+  (declare (salience 60))
+  (patient-symptom (name headache))
+  (or
+    (patient-symptom (name fever))
+    (patient-symptom (name vomiting))
+    (patient-symptom (name stiff-neck))
+  )
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 3)
+    (transport matatu)
+    (rationale "Severe headache with concerning symptoms. See doctor today.")
+  ))
+)
+
+(defrule stiff-neck-fever
+  "Stiff neck with fever - possible meningitis"
+  (declare (salience 80))
+  (patient-symptom (name stiff-neck))
+  (patient-symptom (name fever))
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 2)
+    (transport matatu)
+    (rationale "Stiff neck and fever - possible infection. Urgent medical evaluation needed!")
+  ))
+)
+
+(defrule rash-with-fever
+  "Rash with fever"
+  (declare (salience 55))
+  (patient-symptom (name rash))
+  (patient-symptom (name fever))
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 3)
+    (transport matatu)
+    (rationale "Fever with rash. Medical evaluation recommended today.")
+  ))
+)
+
+(defrule diabetes-with-symptoms
+  "Diabetic with concerning symptoms"
+  (declare (salience 75))
+  (patient-history (history ?h&:(or (eq ?h diabetes) (eq ?h diabetic))))
+  (or
+    (patient-symptom (name weakness))
+    (patient-symptom (name dizziness))
+    (patient-symptom (name vomiting))
+  )
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 2)
+    (transport matatu)
+    (rationale "Diabetic with concerning symptoms. Blood sugar check needed - visit hospital today.")
+  ))
+)
+
+;; MILD / GREEN - Self Care / Pharmacy
+(defrule simple-fever
+  "Mild fever without complications"
+  (declare (salience 30))
+  (patient-symptom (name fever))
+  (not (patient-symptom (name vomiting)))
+  (not (patient-symptom (name difficulty-breathing)))
+  (not (patient-symptom (name chest-pain)))
+  =>
+  (assert (triage-result
+    (level GREEN)
+    (score 4)
+    (transport chemist)
+    (rationale "Mild fever. Rest, hydrate, and get fever medicine from pharmacy.")
+  ))
+)
+
+(defrule simple-headache
+  "Mild headache"
+  (declare (salience 25))
+  (patient-symptom (name headache))
+  (not (patient-symptom (name fever)))
+  (not (patient-symptom (name vomiting)))
+  (not (patient-symptom (name stiff-neck)))
+  =>
+  (assert (triage-result
+    (level GREEN)
+    (score 4)
+    (transport chemist)
+    (rationale "Mild headache. Take pain reliever from pharmacy and rest.")
+  ))
+)
+
+(defrule simple-cough
+  "Mild cough"
+  (declare (salience 25))
+  (patient-symptom (name cough))
+  (not (patient-symptom (name difficulty-breathing)))
+  (not (patient-symptom (name chest-pain)))
+  (not (patient-symptom (name fever)))
+  =>
+  (assert (triage-result
+    (level GREEN)
+    (score 4)
+    (transport chemist)
+    (rationale "Mild cough. Get cough syrup from pharmacy, drink warm fluids.")
+  ))
+)
+
+(defrule simple-dizziness
+  "Mild dizziness"
+  (declare (salience 20))
+  (patient-symptom (name dizziness))
+  (not (patient-symptom (name chest-pain)))
+  (not (patient-symptom (name difficulty-breathing)))
+  =>
+  (assert (triage-result
+    (level GREEN)
+    (score 4)
+    (transport chemist)
+    (rationale "Mild dizziness. Rest, stay hydrated. If persists, see a doctor.")
+  ))
+)
+
+(defrule simple-weakness
+  "General weakness"
+  (declare (salience 20))
+  (patient-symptom (name weakness))
+  (not (patient-symptom (name chest-pain)))
+  (not (patient-symptom (name difficulty-breathing)))
+  =>
+  (assert (triage-result
+    (level GREEN)
+    (score 4)
+    (transport chemist)
+    (rationale "General weakness. Rest well, eat nutritious food, take multivitamins.")
+  ))
+)
+
+(defrule minor-fracture
+  "Simple fracture without complications"
+  (declare (salience 40))
+  (patient-symptom (name fracture))
+  (not (patient-symptom (name severe-bleeding)))
+  (not (patient-symptom (name unconscious)))
+  =>
+  (assert (triage-result
+    (level YELLOW)
+    (score 3)
+    (transport matatu)
+    (rationale "Fracture detected. Visit hospital for X-ray and treatment.")
+  ))
+)
