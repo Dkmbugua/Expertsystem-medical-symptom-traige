@@ -89,6 +89,17 @@ Here is a series of screenshots showcasing the user interface of the expert syst
 ![User Interface 17](./assets/ES17.jpeg)
 
 
+## 4.1. Rule Screenshots
+
+To illustrate the structure and content of some of the CLIPS rules, here are screenshots of selected rules from the knowledge base:
+
+![Rule Example 1](./assets/R1.jpeg)
+![Rule Example 2](./assets/R2.jpeg)
+![Rule Example 3](./assets/R3.jpeg)
+![Rule Example 4](./assets/R4.jpeg)
+![Rule Example 5](./assets/R5.jpeg)
+![Rule Example 6](./assets/R6.jpeg)
+
 ## 5. Technology Stack
 
 | Component         | Technology/Library      |
